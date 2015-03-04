@@ -4,6 +4,7 @@ import com.couchbase.client.java.document.JsonDocument
 import com.couchbase.client.java.view.ViewQuery
 import org.apache.spark.{SparkContext, SparkConf}
 import com.couchbase.spark._
+import org.apache.spark.SparkContext._
 
 object ReadByView {
 
@@ -19,11 +20,25 @@ object ReadByView {
     val sc = new SparkContext(conf)
 
     // Read the first 10 rows and load their full documents
-    sc.couchbaseView(ViewQuery.from("beer", "brewery_beers").limit(10))
+    val beers = sc.couchbaseView(ViewQuery.from("beer", "brewery_beers"))
       .map(_.id)
       .couchbaseGet[JsonDocument]()
-      .collect()
-      .foreach(println)
+      .filter(doc => doc.content().getString("type") == "beer")
+      .cache()
+
+    // Calculate the mean for all beers
+    println(beers
+      .map(doc => doc.content().getDouble("abv").asInstanceOf[Double])
+      .mean())
+
+    // Find the top beers with the longest name
+    beers
+      .map(doc => doc.content().getString("name"))
+      .map(name => (name.length, name))
+      .sortByKey(false)
+      .take(3)
+      .foreach(beer => println(beer._2 + ": " + beer._1))
+
   }
 
 }
