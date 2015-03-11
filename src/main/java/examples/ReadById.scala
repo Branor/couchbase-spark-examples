@@ -11,14 +11,14 @@ object ReadById {
     val conf = new SparkConf()
       .setMaster("local[*]")
       .setAppName("readById")
-      .set("com.couchbase.bucket.beer-sample", "") // connect to beer-sample instead of default
+      .set("com.couchbase.bucket.default", "")
 
     // Create the spark context
     val sc = new SparkContext(conf)
 
-    // Fetch beers by IDs, filter out the name and print it out
-    sc.couchbaseGet[JsonDocument](Seq("21st_amendment_brewery_cafe-21a_ipa", "aass_brewery-genuine_pilsner"))
-      .map(doc => doc.content().getString("name"))
+    // Fetch documents by IDs
+    sc.couchbaseGet[JsonDocument](Seq("pymc0", "pymc1"))
+      .map(doc => doc.content().getString("name") + " - " + doc.content().getInt("age"))
       .collect()
       .foreach(println)
   }
