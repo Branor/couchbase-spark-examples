@@ -15,7 +15,8 @@ object TwitterStreaming {
 
     val window = 5
     //val filter = Seq("couchbase", "nosql", "kafka", "storm", "spark")
-    val filter = Seq("israel", "iran", "elections")
+    //val filter = Seq("israel", "iran", "elections")
+    val filter = Seq("usa", "iran", "russia");
 
     val conf = new SparkConf()
       .setMaster("local[*]")
@@ -27,29 +28,32 @@ object TwitterStreaming {
     val ssc = new StreamingContext(conf, Seconds(window))
 
     val stream = TwitterUtils
-      .createStream(ssc, None, filter) // create the stream
+      .createStream(ssc, None, filter)                                        // create the stream
       .flatMap(status => status.getText.split(" ").filter(_.startsWith("#"))) // extract hashtags from tweets
-      .map((_, 1)) // add 1 to each tag to prepare it for reduce
+      .map((_, 1))                                                            // add 1 to each tag to prepare it for reduce
       .reduceByKeyAndWindow((a: Int, b: Int) => a + b, Seconds(window), Seconds(window)) // reduce by a 1 second window and emit a new rdd in one second as well
-      .map {case (topic, count) => (count, topic)} // flip the data for sorting
-      .transform(_.sortByKey(false)) // sort descending
-      .filter(_._1 >= 2) // filter out not so popular tags (for example set to 3)
-      .map(countAndTopic => ("aggr", countAndTopic)) // map the count and topic onto a single key for easy grouping
-      .groupByKey() // group all data into a single RDD item so we can store it as a document
-      .map(data => { // map from the list of tuples into a JsonArrayDocument. use a custom document id per second
+      .map {case (topic, count) => (count, topic)}                            // flip the data for sorting
+      .transform(_.sortByKey(false))                                          // sort descending
+      .filter(_._1 >= 2)                                                      // filter out not so popular tags (for example set to 3)
+      .map(countAndTopic => ("aggr", countAndTopic))                          // map the count and topic onto a single key for easy grouping
+      .groupByKey()                                                           // group all data into a single RDD item so we can store it as a document
+      .map(data => {                                                          // map from the list of tuples into a JsonArrayDocument. use a custom document id per second
         val id = "_tags::" + System.currentTimeMillis() / 1000
-        val content = JsonArray.create()
-        data._2.foreach(tuple => content.add(JsonObject.create().put("tag", tuple._2).put("count", tuple._1)))
+        val tags = JsonArray.create()
+        val content = JsonObject.create()
+        data._2.foreach(tuple => tags.add(JsonObject.create().put("tag", tuple._2).put("count", tuple._1)))
+        content.put("tags", tags)
+        content.put("date", System.currentTimeMillis())
         println(id, content)
-        JsonArrayDocument.create(id, content)
+        JsonDocument.create(id, content)
       })
       //.print()
-      .saveToCouchbase("default") // store the document in couchbase
+      .saveToCouchbase("default")                                             // store the document in couchbase
 
 
     val tweets = TwitterUtils
-      .createStream(ssc, None, filter)
-      .map(tweet => {
+      .createStream(ssc, None, filter)                                        // create the tweet stream
+      .map(tweet => {                                                         // map tweets into a JsonDocument, keeping the username, text, date and location fields
         val id = tweet.getId.toString
         val content = JsonObject.create()
         val location = tweet.getGeoLocation
@@ -63,7 +67,7 @@ object TwitterStreaming {
         JsonDocument.create(id, content)
       })
       //.print()
-      .saveToCouchbase("tweets")
+      .saveToCouchbase("tweets")                                             // store the document in couchbase
 
 
     ssc.start()

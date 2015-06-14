@@ -25,7 +25,7 @@ object ReadByQuery {
     val sc = new SparkContext(conf)
 
     val docs = sc
-      .couchbaseQuery(Query.simple("SELECT name, age, body FROM `default` WHERE name IS NOT MISSING"), "default")
+      .couchbaseQuery(Query.simple("SELECT name, age FROM default WHERE name IS NOT MISSING"), "default")
       .filter(row => row.value.getInt("age") < 50 )
       .cache()
 
@@ -38,17 +38,17 @@ object ReadByQuery {
       .map(row => row.value.getInt("age").asInstanceOf[Int])
       .mean())
 
-    // Count frequency of non-trivial words, print top 10
-    val tweets = sc
-      .couchbaseQuery(Query.simple("select text FROM `tweets`"), "tweets")
-      .flatMap(row => row.value.getString("text").split(" "))
-      .filter(word => word.length >= 5)
-      .map(word => (word, 1))
-      .reduceByKey(_ + _)
-      .map(item => item.swap)
-      .sortByKey(false)
-      .map(item => item.swap)
-      .take(10)
-      .foreach(println)
+//    // Count frequency of non-trivial words, print top 10
+//    val tweets = sc
+//      .couchbaseQuery(Query.simple("select text FROM `tweets`"), "tweets")
+//      .flatMap(row => row.value.getString("text").split(" "))
+//      .filter(word => word.length >= 5)
+//      .map(word => (word, 1))
+//      .reduceByKey(_ + _)
+//      .map(item => item.swap)
+//      .sortByKey(false)
+//      .map(item => item.swap)
+//      .take(10)
+//      .foreach(println)
   }
 }

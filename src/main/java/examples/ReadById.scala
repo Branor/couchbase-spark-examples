@@ -22,5 +22,4 @@ object ReadById {
       .collect()
       .foreach(println)
   }
-
 }
