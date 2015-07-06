@@ -35,7 +35,7 @@ object ReadByView {
     beers
       .map(doc => doc.content().getString("name"))
       .map(name => (name.length, name))
-      .sortByKey(false)
+      .sortBy(t => t._1, false)
       .take(3)
       .foreach(beer => println(beer._2 + ": " + beer._1))
 

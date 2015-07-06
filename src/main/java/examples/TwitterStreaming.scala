@@ -1,5 +1,7 @@
 package examples
 
+import scala.collection.mutable.Map
+import com.couchbase.client.java.CouchbaseCluster
 import com.couchbase.client.java.document.{JsonDocument, JsonArrayDocument}
 import com.couchbase.client.java.document.json.{JsonObject, JsonArray}
 import com.couchbase.spark.streaming._
@@ -15,7 +17,6 @@ object TwitterStreaming {
 
     val window = 5
     //val filter = Seq("couchbase", "nosql", "kafka", "storm", "spark")
-    //val filter = Seq("israel", "iran", "elections")
     val filter = Seq("usa", "iran", "russia");
 
     val conf = new SparkConf()
@@ -74,3 +75,39 @@ object TwitterStreaming {
     ssc.awaitTermination()
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+//val cluter = CouchbaseCluster.create("localhost")
+//val bucket = cluter.openBucket("default")
+
+
+//    val users = TwitterUtils
+//      .createStream(ssc, None, filter)                                        // create the tweet stream
+//      .map(tweet => {                                                         // map tweets into a JsonDocument, keeping the username, text, date and location fields
+//        val tags = tweet.getText.split(" ").filter(_.startsWith("#"))
+//        val user = "_test"//tweet.getUser.getScreenName
+//      (user, tags)
+//      })
+//      .map(tuple => {
+//        val user = bucket.get(tuple._1)
+//        val content = if(user == null) JsonObject.create() else user.content()
+//        val tags = collection.mutable.Map[String, Int]().withDefaultValue(0)
+//
+//        if(content.get("tags") != null)
+//          content.get("tags").asInstanceOf[Map[String,Int]].foreach(tag => tags(tag._1) += 1)
+//        tuple._2.foreach(tag => tags(tag) += 1)
+//
+//        content.put("tags", tags)
+//        JsonDocument.create("user::" + tuple._1, content)
+//      })
+//      .saveToCouchbase("default")

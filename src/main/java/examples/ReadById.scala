@@ -17,7 +17,9 @@ object ReadById {
     val sc = new SparkContext(conf)
 
     // Fetch documents by IDs
-    sc.couchbaseGet[JsonDocument](Seq("pymc0", "pymc1"))
+    sc
+      .parallelize(Seq("pymc0", "pymc1"))
+      .couchbaseGet[JsonDocument]()
       .map(doc => doc.content().getString("name") + " - " + doc.content().getInt("age"))
       .collect()
       .foreach(println)

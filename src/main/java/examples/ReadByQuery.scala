@@ -1,11 +1,12 @@
 package examples
 
-import com.couchbase.client.java.document.JsonDocument
 import com.couchbase.client.java.query.Query
-import com.couchbase.client.java.view.ViewQuery
 import com.couchbase.spark._
-import org.apache.spark.SparkContext._
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.sources.EqualTo
+import org.apache.spark.sql.types.{DoubleType, StructField, StringType, StructType, IntegerType}
 import org.apache.spark.{SparkConf, SparkContext}
+import com.couchbase.spark.sql._
 
 object ReadByQuery {
 
@@ -24,8 +25,12 @@ object ReadByQuery {
     // Create the spark context
     val sc = new SparkContext(conf)
 
+    // Spark SQL Setup
+    val sql = new SQLContext(sc)
+
+
     val docs = sc
-      .couchbaseQuery(Query.simple("SELECT name, age FROM default WHERE name IS NOT MISSING"), "default")
+      .couchbaseQuery(Query.simple("SELECT name, age FROM default WHERE name IS NOT MISSING AND age IS NOT MISSING"), "default")
       .filter(row => row.value.getInt("age") < 50 )
       .cache()
 
@@ -37,6 +42,24 @@ object ReadByQuery {
     println(docs
       .map(row => row.value.getInt("age").asInstanceOf[Int])
       .mean())
+
+
+    // Create a DataFrame with Schema Inference
+    //val df = sql.read.couchbase(schemaFilter = EqualTo("name", "pymc0"))
+    val df= sql.read.couchbase(schema = StructType(
+       StructField("name", StringType) ::
+       StructField("age", IntegerType) ::
+       StructField("body", StringType) :: Nil
+    ))
+
+    df.printSchema()
+
+    // SparkSQL Integration
+    df
+      .select("name", "age")
+      .sort(df("age").desc)
+      .show(10)
+
 
 //    // Count frequency of non-trivial words, print top 10
 //    val tweets = sc

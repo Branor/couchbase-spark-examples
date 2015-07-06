@@ -22,15 +22,10 @@ object SaveToCouchbase {
       .map(i => JsonDocument.create("doc-" + i, JsonObject.create().put("number", i)))
       .saveToCouchbase()
 
-
-    // Save documents from a pair
-    val doc1 = ("doc1", Map("key" -> "value"))
-    val doc2 = ("doc2", Map("a" -> 1, "b" -> true))
-
-    val data = sc
-      .parallelize(Seq(doc1, doc2))
-      .toCouchbaseDocument[JsonDocument]
-      .saveToCouchbase()
-
+    // Check that some of the documents exist
+    sc.parallelize(Seq("doc-2", "doc-99"))
+      .couchbaseGet[JsonDocument]()
+      .collect()
+      .foreach(println)
   }
 }
