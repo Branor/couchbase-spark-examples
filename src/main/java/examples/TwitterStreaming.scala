@@ -17,7 +17,7 @@ object TwitterStreaming {
 
     val window = 5
     //val filter = Seq("couchbase", "nosql", "kafka", "storm", "spark")
-    val filter = Seq("usa", "iran", "russia");
+    val filter = Seq("usa", "canada", "iran", "russia", "europe");
 
     val conf = new SparkConf()
       .setMaster("local[*]")
@@ -61,6 +61,8 @@ object TwitterStreaming {
         content.put("text", tweet.getText)
         content.put("date", tweet.getCreatedAt.getTime)
         content.put("user", tweet.getUser.getScreenName)
+        content.put("userFollowersCount", tweet.getUser.getFollowersCount)
+        content.put("userStatusesCount", tweet.getUser.getStatusesCount)
 
         if (location != null)
            content.put("location", JsonArray.create().add(location.getLongitude).add(location.getLatitude))
