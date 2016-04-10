@@ -14,7 +14,7 @@ object ReadDcpStream {
     val conf = new SparkConf()
       .setMaster("local[*]")
       .setAppName("readById")
-      .set("com.couchbase.bucket.default", "")
+      .set("com.couchbase.bucket.tweets", "")
 
     val ssc = new StreamingContext(conf, Seconds(5))
 
