@@ -21,9 +21,9 @@ object TwitterSentimentPositive {
 
     ssc
       .couchbaseStream()
-      .filter(msg => msg.isInstanceOf[Mutation])
+      .filter(_.isInstanceOf[Mutation])
       .map(msg => new String(msg.asInstanceOf[Mutation].content, "UTF-8"))
-      .map(json => JsonObject.fromJson(json))
+      .map(JsonObject.fromJson(_))
       .filter(json => json.containsKey("sentimentScore") && json.getInt("sentimentScore") >= 3)
       .map(json => json.getString("sentiment") + " : " + json.getString("text"))
       .print()

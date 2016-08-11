@@ -1,6 +1,6 @@
 package examples
 
-import com.couchbase.client.java.query.Query
+import com.couchbase.client.java.query.N1qlQuery
 import com.couchbase.spark._
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.sources.EqualTo
@@ -30,7 +30,7 @@ object ReadByQuery {
 
 
     val docs = sc
-      .couchbaseQuery(Query.simple("SELECT name, age FROM default WHERE name IS NOT MISSING AND age IS NOT MISSING"), "default")
+      .couchbaseQuery(N1qlQuery.simple("SELECT name, age FROM default WHERE name IS NOT MISSING AND age IS NOT MISSING"), "default")
       .filter(row => row.value.getInt("age") < 50 )
       .cache()
 

@@ -17,7 +17,8 @@ object TwitterStreaming {
 
     val window = 5
     //val filter = Seq("couchbase", "nosql", "kafka", "storm", "spark")
-    val filter = Seq("usa", "canada", "iran", "russia", "europe");
+    //val filter = Seq("ndc", "ndcoslo")
+    val filter = Seq("brexit", "usa", "iran", "russia", "europe", "trump", "panama", "papers");
 
     val conf = new SparkConf()
       .setMaster("local[*]")

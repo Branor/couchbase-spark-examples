@@ -14,12 +14,15 @@ object ReadDcpStream {
     val conf = new SparkConf()
       .setMaster("local[*]")
       .setAppName("readById")
-      .set("com.couchbase.bucket.tweets", "")
+      .set("com.couchbase.bucket.default", "")
+      .set("com.couchbase.nodes", "localhost")
 
     val ssc = new StreamingContext(conf, Seconds(5))
 
     ssc
-      .couchbaseStream()
+      .couchbaseStream(from = FromBeginning, to = ToInfinity)
+      .filter(!_.isInstanceOf[Snapshot])
+      .count()
       .print()
 
     ssc.start()
