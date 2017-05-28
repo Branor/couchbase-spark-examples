@@ -26,6 +26,7 @@ object TwitterSentimentPositive {
       .map(JsonObject.fromJson(_))
       .filter(json => json.containsKey("sentimentScore") && json.getInt("sentimentScore") >= 3)
       .map(json => json.getString("sentiment") + " : " + json.getString("text"))
+     // .count()
       .print()
 
 
