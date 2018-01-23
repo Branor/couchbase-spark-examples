@@ -17,15 +17,14 @@ object TwitterStreaming {
 
     val window = 5
     //val filter = Seq("couchbase", "nosql", "kafka", "storm", "spark")
-    //val filter = Seq("ndc", "ndcoslo")
     val filter = Seq("usa", "iran", "russia", "europe", "trump");
 
     val conf = new SparkConf()
       .setMaster("local[*]")
       .setAppName("twitterStreaming")
       .set("com.couchbase.nodes", "localhost")
-      .set("com.couchbase.bucket.default", "")
-      .set("com.couchbase.bucket.tweets", "")
+      .set("com.couchbase.bucket.default", "123456")
+      .set("com.couchbase.bucket.tweets", "123456")
 
     val ssc = new StreamingContext(conf, Seconds(window))
 

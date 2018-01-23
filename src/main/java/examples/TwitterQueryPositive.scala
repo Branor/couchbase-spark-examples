@@ -18,8 +18,8 @@ object TwitterQueryPositive {
       .setMaster("local[*]")
       .setAppName("getByQuery")
       .set("com.couchbase.nodes", "localhost")
-      .set("com.couchbase.bucket.default", "")
-      .set("com.couchbase.bucket.tweets", "")
+      .set("com.couchbase.bucket.default", "123456")
+      .set("com.couchbase.bucket.tweets", "123456")
 
     // Create the spark context
     val sc = new SparkContext(conf)
@@ -43,20 +43,20 @@ object TwitterQueryPositive {
       .mean())
 
 
-    // Create a DataFrame with Schema Inference
-    val df= sql.read.couchbase(schema = StructType(
-       StructField("user", StringType) ::
-       StructField("text", StringType) ::
-       StructField("sentimentScore", LongType) ::
-       StructField("sentiment", StringType) :: Nil
-    ))
-
-    df.printSchema()
-
-    // SparkSQL Integration
-    df
-      .select("sentiment", "sentimentScore", "user", "text")
-      .sort(df("sentimentScore").desc)
-      .show(10)
+//    // Create a DataFrame with Schema Inference
+//    val df= sql.read.couchbase(schema = StructType(
+//       StructField("user", StringType) ::
+//       StructField("text", StringType) ::
+//       StructField("sentimentScore", LongType) ::
+//       StructField("sentiment", StringType) :: Nil
+//    ))
+//
+//    df.printSchema()
+//
+//    // SparkSQL Integration
+//    df
+//      .select("sentiment", "sentimentScore", "user", "text")
+//      .sort(df("sentimentScore").desc)
+//      .show(10)
   }
 }

@@ -15,7 +15,7 @@ object TwitterSentimentPositive {
     val conf = new SparkConf()
       .setMaster("local[*]")
       .setAppName("readById")
-      .set("com.couchbase.bucket.tweets", "")
+      .set("com.couchbase.bucket.tweets", "123456")
 
     val ssc = new StreamingContext(conf, Seconds(5))
 
@@ -24,7 +24,7 @@ object TwitterSentimentPositive {
       .filter(_.isInstanceOf[Mutation])
       .map(msg => new String(msg.asInstanceOf[Mutation].content, "UTF-8"))
       .map(JsonObject.fromJson(_))
-      .filter(json => json.containsKey("sentimentScore") && json.getInt("sentimentScore") >= 3)
+      .filter(json => json.containsKey("sentimentScore") && json.getInt("sentimentScore") >= 3 && json.containsKey("sentiment"))
       .map(json => json.getString("sentiment") + " : " + json.getString("text"))
      // .count()
       .print()
